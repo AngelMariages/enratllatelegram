@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.pengrad:java-telegram-bot-api:2.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.pengrad/java-telegram-bot-api/2.0.1/3fb4bd2f80ba1d5abee0d40f4fa78e9a957de399/java-telegram-bot-api-2.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.pengrad/java-telegram-bot-api/2.0.1/7931cec5f083900cb572ea655a9775483b3e360e/java-telegram-bot-api-2.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

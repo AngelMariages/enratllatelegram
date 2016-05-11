@@ -1,0 +1,24 @@
+group 'com.cesarbiker.enratllatelegram'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.github.pengrad:java-telegram-bot-api:2.0.1'
+
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
