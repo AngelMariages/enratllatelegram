@@ -26,10 +26,11 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramBotAdapter;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
-import com.pengrad.telegrambot.request.GetUpdates;
-import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.request.*;
+import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 
 import java.util.List;
 
@@ -37,6 +38,23 @@ public class Main {
 	private static TelegramBot telegramBot = null;
 	private static boolean gettingUpdates = false;
 	private static Firebase firebase = null;
+
+	private static final InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(
+			new InlineKeyboardButton[]{
+					new InlineKeyboardButton(" ").callbackData("1"),
+					new InlineKeyboardButton(" ").callbackData("2"),
+					new InlineKeyboardButton(" ").callbackData("3")
+			},
+			new InlineKeyboardButton[]{
+					new InlineKeyboardButton(" ").callbackData("4"),
+					new InlineKeyboardButton(" ").callbackData("5"),
+					new InlineKeyboardButton(" ").callbackData("6")
+			},
+			new InlineKeyboardButton[]{
+					new InlineKeyboardButton(" ").callbackData("7"),
+					new InlineKeyboardButton(" ").callbackData("8"),
+					new InlineKeyboardButton(" ").callbackData("9")
+			});
 
 	public static void main(String[] args) {
 		telegramBot = TelegramBotAdapter.build("224863668:AAHXadjCsn5S6d__SdmyH0YzNp_l_upUV30");
@@ -62,11 +80,19 @@ public class Main {
 						List<Update> updates = updatesResponse.updates();
 						for(Update update : updates) {
 							lastUpdate = update.updateId() + 1;
-							Message message = update.message();
-
-							if(message.text() != null) {
-								System.out.println("New update from: " + message.from().firstName() + ", text: " + message.text() + ", chat: " + message.chat());
-								checkCommand(message.text(), message.chat().id(), message.from().username());
+							if(update.message() != null) {
+								Message message = update.message();
+								if(message.text() != null) {
+									System.out.println("New update from: " + message.from().firstName() + ", text: " + message.text() + ", chat: " + message.chat());
+									checkCommand(message.text(), message.chat().id(), message.from().username());
+								}
+							} else {
+								System.out.println("UPDATE: " + update);
+								if(update.callbackQuery() != null) {
+									update.callbackQuery().inlineMessageId();
+									editMessage(update.callbackQuery().message().chat().id(), update.callbackQuery().message().messageId(), update.callbackQuery().data());
+									telegramBot.execute(new AnswerCallbackQuery(update.callbackQuery().id()));
+								}
 							}
 						}
 						Thread.sleep(1000);
@@ -87,13 +113,16 @@ public class Main {
 
 	private static void checkCommand(String command, final Object chatId, String from) {
 		if(command.startsWith("/novapartida")) {
-			ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[][]{
-					{"\u1F30\udc30", "\u2B55", "\u2B55"},
-					{"\u2B55", "\u1F30\uDC30", "\u2716"},
-					{"\u1F30\uDC30", "\u2B55", "\u2B55"}
-			},false, true,false);
-			//sendMessage(chatId, "Nova partida!", replyKeyboardMarkup);
-			sendMessage(chatId, "Cagun");
+			sendMessage(chatId, "Nova partida!");
+			try {
+				Thread.sleep(1000);
+			} catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			sendMessage(chatId, "Tauler:", inlineKeyboard);
+
+
 		} else if(command.equals("/start")) {
 			sendMessage(chatId, "Benvingut al bot del 3 en ratlla");
 			firebase.child(from).child("user_id").setValue(chatId);
@@ -119,12 +148,17 @@ public class Main {
 		}
 	}
 
-	private static void sendMessage(Object chatId, String message) {
-		telegramBot.execute(new SendMessage(chatId, message));
+	private static SendResponse sendMessage(Object chatId, String message) {
+		return telegramBot.execute(new SendMessage(chatId, message));
 	}
 
-	private static void sendMessage(Object chatId, String message, ReplyKeyboardMarkup keyBoardMarkup) {
-		telegramBot.execute(new SendMessage(chatId,message).
-				replyMarkup(keyBoardMarkup));
+	private static SendResponse sendMessage(Object chatId, String message, Keyboard replyMarkup) {
+		return telegramBot.execute(new SendMessage(chatId, message)
+				.replyMarkup(replyMarkup));
+	}
+
+	private static BaseResponse editMessage(Object chatId, int messageId, String message) {
+		return telegramBot.execute(new EditMessageText(chatId, messageId, message)
+				.replyMarkup(inlineKeyboard));
 	}
 }
